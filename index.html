@@ -1,0 +1,116 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Firebase - Phone number authentication OTP</title>
+<style>
+	.container {
+		width: 302px;
+		height: 175px;
+		position: absolute;
+		left: 0px;
+		right: 0px;
+		top: 0px;
+		bottom: 0px;
+		margin: auto;
+	}
+	#number, #verificationcode, #user_id{
+		width: calc(100% - 24px);
+		padding: 10px;
+		font-size: 20px;
+		margin-bottom: 5px;
+		outline: none;
+	}
+	#recaptcha-container {
+		margin-bottom: 5px;
+	}
+	#send, #verify {
+		width: 100%;
+		height: 40px;
+		outline: none;
+	}
+	.p-conf, .n-conf {
+		width: calc(100% - 22px);
+		border: 2px solid green;
+		border-radius: 4px;
+		padding: 8px 10px;
+		margin: 4px 0px;
+		background-color: rgba(0, 249, 12, 0.5);
+		display: none;
+	}
+	.n-conf {
+		border-color: red;
+		background-color: rgba(255, 0, 4, 0.5);
+	}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<div id="sender">
+			<input type="text" id="number" placeholder="+91...">
+			<div id="recaptcha-container"></div>
+			<input type="button" id="send" value="Send" onClick="phoneAuth()">
+		</div>
+		<div id="verifier" style="display: none">
+			<input type="text" id="verificationcode" placeholder="OTP Code">
+			<input type="button" id="verify" value="Verify" onClick="codeverify()">
+			<div class="p-conf">Number Verified   <span id="reg_id"></span></div>
+			<div class="n-conf">OTP ERROR</div><br/>
+      Uid : <input type='text' id='user_id' />
+		</div>
+	</div>
+<!--	add firebase SDK-->
+ <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase.js"></script> 
+
+<script>
+	// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyBz2lnti7cDnZaDgt_JjQOiqdIxZQiFO80",
+    authDomain: "san-otp.firebaseapp.com",
+    databaseURL: "https://san-otp-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "san-otp",
+    storageBucket: "san-otp.appspot.com",
+    messagingSenderId: "41345886031",
+    appId: "1:41345886031:web:1da410f36a7e1228a8073a",
+    measurementId: "G-Z61WFWP6GH"
+};
+	firebase.initializeApp(firebaseConfig);
+render();
+function render(){
+	window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+	recaptchaVerifier.render();
+}
+	// function for send message
+function phoneAuth(){
+	var number = document.getElementById('number').value;
+	firebase.auth().signInWithPhoneNumber(number, window.recaptchaVerifier).then(function(confirmationResult){
+		window.confirmationResult = confirmationResult;
+		coderesult = confirmationResult;
+		console.log("data : ",coderesult);
+		
+		document.getElementById('sender').style.display = 'none';
+		document.getElementById('verifier').style.display = 'block';
+	}).catch(function(error){
+		alert(error.message);
+	});
+}
+	// function for code verify
+function codeverify(){
+	var code = document.getElementById('verificationcode').value;
+	coderesult.confirm(code).then(function(){
+    currentUser = firebase.auth().currentUser;
+    console.log("uid :",currentUser.uid)
+    document.getElementById("user_id").value = currentUser.uid;
+		document.getElementsByClassName('p-conf')[0].style.display = 'block';
+		document.getElementsByClassName('n-conf')[0].style.display = 'none';
+	}).catch(function(){
+		document.getElementsByClassName('p-conf')[0].style.display = 'none';
+		document.getElementsByClassName('n-conf')[0].style.display = 'block';
+	})
+}
+
+</script>
+</body>
+</html>
